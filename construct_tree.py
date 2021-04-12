@@ -4,10 +4,12 @@ import sys
 from Object import Object
 from Node import RTreeNode, RTreeEntry
 
-leaf_entries = []
 node_array = []  # array that holds the nodes
 node_count = 0
 tree_level = 0
+C = 20
+min_C = 20 * 0.4
+coords_file, offsets_file, outfile = sys.argv[1:4]
 
 
 def chunks(lst, n):
@@ -30,22 +32,28 @@ def load_objects(coords_file, offsets_file):
             object = Object(id, object_coords)
             object.calculate_geohash()
             objects.append(object)
-        # use geohashing to sort objects and reduce empty space in the MBRs later
+        # use geohashing to sort objects and reduce empty space in the MBRs
         objects.sort(key=lambda object: object.geohash)
-        # delete geohashes after the sort to free up memory and create entries
+        result = []
+        # create the entries from the objects
         for object in objects:
-            leaf_entries.append(RTreeEntry(object.id, object.mbr))
+            result.append(RTreeEntry(object.id, object.mbr))
+    return result
 
 
-load_objects(*sys.argv[1:])
+leaf_entries = load_objects(coords_file, offsets_file)
 
-entries_split = list(chunks(leaf_entries, 20))
+entries_split = list(chunks(leaf_entries, C))
 
 for entries in entries_split:
     node_array.append(RTreeNode(node_id=node_count, isnonleaf=0, entries=entries))
     node_count += 1
 
-print(*node_array, sep='\n')
+#print(*node_array, sep='\n')
+
+with open(outfile, 'w') as output:
+    for node in node_array:
+        output.write(f'{str(node)}\n')
 
 # x = '[ "A","B","C" , " D"]'
 # x = ast.literal_eval(x)
