@@ -37,3 +37,21 @@ class Rectangle:
         cx = (self.x_low + self.x_high) / 2
         cy = (self.y_low + self.y_high) / 2
         return cx, cy
+
+
+def calculate_MBR(coords) -> Rectangle:
+    x_low = min(coord[0] for coord in coords)
+    x_high = max(coord[0] for coord in coords)
+    y_low = min(coord[1] for coord in coords)
+    y_high = max(coord[1] for coord in coords)
+
+    return Rectangle(x_low, x_high, y_low, y_high)
+
+
+def calculate_Geohash(mbr: Rectangle) -> int:
+    try:
+        import pymorton as pm
+    except ImportError:
+        raise RuntimeError("Please install pymorton to calculate geohashes: pip install pymorton")
+    x, y = mbr.centroid()
+    return pm.interleave_latlng(y, x)

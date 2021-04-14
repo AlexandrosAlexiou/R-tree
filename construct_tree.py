@@ -1,25 +1,22 @@
 #!/usr/bin/env python3
-
+import ast
 import sys
-from Object import Object
+from typing import List
+
+from Rectangle import calculate_MBR, calculate_Geohash
 from Node import RTreeNode, RTreeEntry
+from utils import chunks, distribute
 
 node_array = []  # array that holds the nodes
 node_count = 0
 tree_level = 0
-C = 20
-min_C = 20 * 0.4
+C = 20  # node capacity
+min_C = 8  # node minimum capacity
 coords_file, offsets_file, outfile = sys.argv[1:4]
 
 
-def chunks(lst, n):
-    """Yield n-sized chunks from lst."""
-    for i in range(0, len(lst), n):
-        yield lst[i:i + n]
-
-
-def load_objects(coords_file, offsets_file):
-    objects = []  # object array
+def load_entries(coords_file: str, offsets_file: str) -> List[RTreeEntry]:
+    leaf_entries = []
     with open(coords_file) as coords, open(offsets_file) as offsets:
         offsets_lines = offsets.readlines()
         for line in offsets_lines:
@@ -29,32 +26,46 @@ def load_objects(coords_file, offsets_file):
             for _ in range(lines_count):
                 x, y = coords.readline().rstrip("\n").split(',')
                 object_coords.append([float(x), float(y)])
-            object = Object(id, object_coords)
-            object.calculate_geohash()
-            objects.append(object)
+            entry = RTreeEntry(id, calculate_MBR(object_coords))
+            entry.geohash = calculate_Geohash(entry.mbr)
+            leaf_entries.append(entry)
         # use geohashing to sort objects and reduce empty space in the MBRs
-        objects.sort(key=lambda object: object.geohash)
-        result = []
-        # create the entries from the objects
-        for object in objects:
-            result.append(RTreeEntry(object.id, object.mbr))
-    return result
+        leaf_entries.sort(key=lambda obj: obj.geohash)
+        # delete geohashes to free up some memory
+        for entry in leaf_entries:
+            del entry.geohash
+    return leaf_entries
 
 
-leaf_entries = load_objects(coords_file, offsets_file)
+def construct(entries: List[RTreeEntry], curr_tree_level: int, isnonleaflevel: int):
+    global node_count, node_array
 
-entries_split = list(chunks(leaf_entries, C))
+    curr_level_nodes = []
+    if len(entries) > C:
+        entries_split = distribute(entries, min_C, C)
+        for entries in entries_split:
+            curr_level_nodes.append(RTreeNode(id=node_count, isnonleaf=isnonleaflevel, entries=entries))
+            node_count += 1
+        print(f'{len(curr_level_nodes)} nodes at level {curr_tree_level}')
+        node_array += curr_level_nodes
 
-for entries in entries_split:
-    node_array.append(RTreeNode(node_id=node_count, isnonleaf=0, entries=entries))
-    node_count += 1
+        # create entries for next level
+        # we calculate each node mbr and we create a list of RTreeEntry objects
+        next_level_entries = []
+        for node in curr_level_nodes:
+            next_level_entries.append(RTreeEntry(entry_id=node.id, mbr=node.get_mbr()))
+        curr_tree_level += 1
+        construct(entries=next_level_entries, curr_tree_level=curr_tree_level, isnonleaflevel=1)
+    else:
+        # we reached root node
+        root_node = RTreeNode(id=node_count, isnonleaf=isnonleaflevel, entries=entries)
+        node_array.append(root_node)
+        print(f'1 nodes at level {curr_tree_level}')
 
-#print(*node_array, sep='\n')
 
-with open(outfile, 'w') as output:
-    for node in node_array:
-        output.write(f'{str(node)}\n')
+leaf_entries = load_entries(coords_file, offsets_file)
 
-# x = '[ "A","B","C" , " D"]'
-# x = ast.literal_eval(x)
-# print(x)
+construct(entries=leaf_entries, curr_tree_level=tree_level, isnonleaflevel=0)
+
+with open(outfile, 'w') as out:
+    out.writelines(f'{str(node)}\n' for node in node_array)
