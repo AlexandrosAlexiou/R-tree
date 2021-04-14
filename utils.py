@@ -18,6 +18,6 @@ def distribute(entries_to_split: List[RTreeEntry], min_c, C):
         for _ in range(remaining):
             elements.append(entries_split[-2].pop())
         for element in elements:
-            entries_split[-1].append(element)
+            entries_split[-1].insert(0, element)
 
     return entries_split

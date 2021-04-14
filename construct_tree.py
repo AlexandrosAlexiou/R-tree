@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-import ast
+
 import sys
 from typing import List
 
 from Rectangle import calculate_MBR, calculate_Geohash
 from Node import RTreeNode, RTreeEntry
-from utils import chunks, distribute
+from utils import distribute
 
 node_array = []  # array that holds the nodes
 node_count = 0
