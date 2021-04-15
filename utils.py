@@ -1,5 +1,5 @@
 from typing import List
-from Node import RTreeNode, RTreeEntry
+from Node import RTreeEntry
 
 
 def chunks(lst, n):
