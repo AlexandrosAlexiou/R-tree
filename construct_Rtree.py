@@ -70,9 +70,12 @@ def construct(entries: List[RTreeEntry], curr_tree_level: int, isnonleaflevel: i
         print(f'1 nodes at level {curr_tree_level}')
 
 
+# load geometrical objects and transform them to RtreeEntry objects
 leaf_entries = load_entries(coords_file, offsets_file)
 
+# start the construction passing the leaf entries
 construct(entries=leaf_entries, curr_tree_level=0, isnonleaflevel=0)
 
+# dump the tree
 with open(outfile, 'w') as out:
     out.writelines(f'{str(node)}\n' for node in node_array)
