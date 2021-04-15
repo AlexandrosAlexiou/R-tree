@@ -15,6 +15,11 @@ coords_file, offsets_file, outfile = sys.argv[1:4]
 
 
 def load_entries(coords_file: str, offsets_file: str) -> List[RTreeEntry]:
+    """
+    Create and return the leaf entries using the input files.
+    Leaf entries are all the objects of the first level of the tree
+    that will be split in twenties and will be packed into nodes.
+    """
     entries = []
     with open(coords_file) as coords, open(offsets_file) as offsets:
         offsets_lines = offsets.readlines()
@@ -36,7 +41,12 @@ def load_entries(coords_file: str, offsets_file: str) -> List[RTreeEntry]:
     return entries
 
 
-def construct(entries: List[RTreeEntry], curr_tree_level: int, isnonleaflevel: int):
+def construct(entries: List[RTreeEntry], curr_tree_level: int, isnonleaflevel: int) -> None:
+    """
+    Construct the tree starting from the leaf entries and recursively create next level entries and nodes.
+    Split entries in twenties and then create the nodes using the groups of twenties. Each twenty is a node.
+    The two last nodes of each level may have less than 20 entries.
+    """
     global node_count, node_array
 
     # if the entries are more than C we need to split them and create UPPER(len(entries)/C) nodes

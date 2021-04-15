@@ -2,13 +2,17 @@ from typing import List
 from Node import RTreeEntry
 
 
-def chunks(lst, n):
+def chunks(lst, n) -> List:
     """Yield n-sized chunks from lst."""
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
 
 
-def distribute(entries_to_split: List[RTreeEntry], min_c, C):
+def distribute(entries_to_split: List[RTreeEntry], min_c: int, C: int) -> List[List[RTreeEntry]]:
+    """
+    Split the entries to groups of twenties and check if last the last node has at lease min_c entries.
+    If not remove elements for previous node and add them to the last node
+    """
     entries_split = list(chunks(entries_to_split, C))
     last = entries_split[-1]
     if len(last) < min_c:
