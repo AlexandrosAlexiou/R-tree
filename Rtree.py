@@ -68,8 +68,7 @@ class Rtree:
         """
         with open(filename, 'r') as dumpfile:
             import ast
-            lines = dumpfile.readlines()
-            for line in lines:
+            for line in dumpfile:
                 line_eval = ast.literal_eval(line)
                 isnonleaf = line_eval[0]
                 node_id = line_eval[1]
