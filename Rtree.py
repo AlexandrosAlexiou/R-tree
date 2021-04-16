@@ -55,6 +55,19 @@ class Rtree:
             self.node_array.append(root_node)
             print(f'1 nodes at level {curr_tree_level}')
 
+    def range_query(self, window: Rectangle, node: RTreeNode):
+        """
+        performs a range query to the tree
+        """
+        if node.isnonleaf:
+            for entry in node.entries:
+                if entry.mbr.intersects(window):
+                    yield from self.range_query(window=window, node=self.node_array[entry.entry_id])
+        else: # node is a leaf node
+            for entry in node.entries:
+                if entry.mbr.inside(window):
+                    yield entry.entry_id
+
     def dump(self, filename):
         """
         dumps the tree on disk
@@ -79,3 +92,4 @@ class Rtree:
                     mbr = entry[1]
                     node_entries.append(RTreeEntry(entry_id=entry_id, mbr=Rectangle(*mbr)))
                 self.node_array.append(RTreeNode(id=node_id, isnonleaf=isnonleaf, entries=node_entries))
+            self.root = self.node_array[-1]

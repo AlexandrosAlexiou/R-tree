@@ -2,6 +2,7 @@ class Rectangle:
     """
     Rectangle that represents an MBR
     """
+
     def __init__(self, x_low: float, x_high: float, y_low: float, y_high: float):
         self.x_low = x_low
         self.x_high = x_high
@@ -38,13 +39,26 @@ class Rectangle:
         cy = (self.y_low + self.y_high) / 2
         return cx, cy
 
+    def intersects(self, other) -> bool:
+        if isinstance(other, Rectangle):
+            overlap_in_x_axis = (other.x_high >= self.x_low) or (other.x_high <= self.x_high)
+            overlap_in_y_axis = (other.y_low <= self.y_high) or (other.y_high <= self.y_low)
+            return overlap_in_x_axis and overlap_in_y_axis
+        return False
+
+    def inside(self, other) -> bool:
+        if isinstance(other, Rectangle):
+            inside_in_x_axis = (other.x_high >= self.x_high) and (other.x_low <= self.x_low)
+            inside_in_y_axis = (other.y_low <= self.y_low) and (other.y_high >= self.y_high)
+            return inside_in_x_axis and inside_in_y_axis
+        return False
+
 
 def calculate_MBR(coords) -> Rectangle:
     x_low = min(coord[0] for coord in coords)
     x_high = max(coord[0] for coord in coords)
     y_low = min(coord[1] for coord in coords)
     y_high = max(coord[1] for coord in coords)
-
     return Rectangle(x_low, x_high, y_low, y_high)
 
 
