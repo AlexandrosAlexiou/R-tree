@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 
-import ast
+from Rtree import Rtree
 
-nodes = []
-with open("./data/Rtree.txt", "r") as Rtree_file:
-    lines = Rtree_file.readlines()
-    for line in lines:
-        nodes.append(ast.literal_eval(line))
+rtree = Rtree()
 
-print(len(nodes[0]))
+rtree.constructFromDumpfile("./data/Rtree.txt")
+

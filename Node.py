@@ -1,4 +1,5 @@
 from typing import List
+
 from Rectangle import Rectangle, calculate_MBR
 
 
