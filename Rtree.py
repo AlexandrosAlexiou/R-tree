@@ -78,7 +78,7 @@ class Rtree:
 
     def constructFromDumpfile(self, filename):
         """
-        parse dumped rtree files and create the tree
+        parse dumped rtree file and create the tree
         """
         with open(filename, 'r') as dumpfile:
             import ast
