@@ -10,6 +10,7 @@ class Rtree:
     This class holds the Rtree data.
     Constructor needs the max and min capacity of each node.
     """
+
     def __init__(self, c=20, min_c=8):
         self.root = None
         self.node_array = []  # array that holds the nodes
@@ -57,15 +58,15 @@ class Rtree:
 
     def range_query(self, window: Rectangle, node: RTreeNode):
         """
-        performs a range query to the tree
+        performs a range query to the tree and yields each object id that satisfies the query range
         """
         if node.isnonleaf:
             for entry in node.entries:
                 if entry.mbr.intersects(window):
                     yield from self.range_query(window=window, node=self.node_array[entry.entry_id])
-        else: # node is a leaf node
+        else:  # node is a leaf node
             for entry in node.entries:
-                if entry.mbr.inside(window):
+                if entry.mbr.intersects(window):
                     yield entry.entry_id
 
     def dump(self, filename):

@@ -41,9 +41,12 @@ class Rectangle:
 
     def intersects(self, other) -> bool:
         if isinstance(other, Rectangle):
-            overlap_in_x_axis = (other.x_high >= self.x_low) or (other.x_high <= self.x_high)
-            overlap_in_y_axis = (other.y_low <= self.y_high) or (other.y_high <= self.y_low)
-            return overlap_in_x_axis and overlap_in_y_axis
+            if (self.x_low >= other.x_high) or \
+                    (self.x_high <= other.x_low) or \
+                    (self.y_high <= other.y_low) or \
+                    (self.y_low >= other.y_high):
+                return False or self.inside(other) or other.inside(self) or self == other
+            return True
         return False
 
     def inside(self, other) -> bool:
