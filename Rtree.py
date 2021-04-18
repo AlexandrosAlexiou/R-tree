@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Iterable
 
 from Node import RTreeNode, RTreeEntry
 from utils import distribute
@@ -56,27 +56,55 @@ class Rtree:
             self.node_array.append(root_node)
             print(f'1 nodes at level {curr_tree_level}')
 
-    def range_query(self, window: Rectangle, node: RTreeNode):
+    def rangeQuery(self, window: Rectangle, node: RTreeNode) -> Iterable[int]:
         """
         performs a range query to the tree and yields each object id that satisfies the query range
         """
         if node.isnonleaf:
             for entry in node.entries:
                 if entry.mbr.intersects(window):
-                    yield from self.range_query(window=window, node=self.node_array[entry.entry_id])
+                    yield from self.rangeQuery(window=window, node=self.node_array[entry.entry_id])
         else:  # node is a leaf node
             for entry in node.entries:
                 if entry.mbr.intersects(window):
                     yield entry.entry_id
 
-    def dump(self, filename):
+    def kNNQuery(self, root: RTreeNode, q: (float, float), k: int):
+        """
+        performs a Nearest Neighbor query to the tree
+        """
+        import heapq as hp
+        nn_obj = Rectangle(float('inf'), float('inf'), float('inf'), float('inf'))
+        nn_obj_id = None
+        h = []
+        for entry in root.entries:
+            hp.heappush(h, (entry.mbr.distance(q), entry.entry_id))
+
+        while len(h) != 0 and self.node_array[h[0][1]].get_mbr().distance(q) < nn_obj.distance(q):
+            e = hp.heappop(h)
+            if self.node_array[e[1]].isnonleaf:
+                n = self.node_array[e[1]]
+                for entry in n.entries:
+                    if entry.mbr.distance(q) < nn_obj.distance(q):
+                        hp.heappush(h, (entry.mbr.distance(q), entry.entry_id))
+
+            else:  # node is a leaf node
+                n = self.node_array[e[1]]
+                for entry in n.entries:
+                    if entry.mbr.distance(q) < nn_obj.distance(q):
+                        nn_obj = entry.mbr
+                        nn_obj_id = entry.entry_id
+
+        return nn_obj_id
+
+    def dump(self, filename: str) -> None:
         """
         dumps the tree on disk
         """
         with open(filename, 'w') as dumpfile:
             dumpfile.writelines(f'{str(node)}\n' for node in self.node_array)
 
-    def constructFromDumpfile(self, filename):
+    def constructFromDumpfile(self, filename: str) -> None:
         """
         parse dumped rtree file and create the tree
         """

@@ -1,3 +1,6 @@
+import math
+
+
 class Rectangle:
     """
     Rectangle that represents an MBR
@@ -55,6 +58,22 @@ class Rectangle:
             inside_in_y_axis = (other.y_low <= self.y_low) and (other.y_high >= self.y_high)
             return inside_in_x_axis and inside_in_y_axis
         return False
+
+    def distance(self, point: (float, float)) -> float:
+        x, y = point
+        dx, dy = 0, 0
+
+        if x < self.x_low:
+            dx = self.x_low - x
+        elif x > self.x_high:
+            dx = x - self.x_high
+
+        if y < self.y_low:
+            dy = self.y_low - y
+        elif y > self.y_high:
+            dy = y - self.y_high
+
+        return math.sqrt(dx**2 + dy**2)
 
 
 def calculate_MBR(coords) -> Rectangle:
