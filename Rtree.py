@@ -112,14 +112,10 @@ class Rtree:
         with open(filename, 'r') as dumpfile:
             import ast
             for line in dumpfile:
-                line_eval = ast.literal_eval(line)
-                isnonleaf = line_eval[0]
-                node_id = line_eval[1]
-                entries = line_eval[2]
+                isnonleaf, node_id, entries = ast.literal_eval(line)
                 node_entries = []
                 for entry in entries:
-                    entry_id = entry[0]
-                    mbr = entry[1]
+                    entry_id, mbr = entry
                     node_entries.append(RTreeEntry(entry_id=entry_id, mbr=Rectangle(*mbr)))
                 self.node_array.append(RTreeNode(id=node_id, isnonleaf=isnonleaf, entries=node_entries))
             self.root = self.node_array[-1]
