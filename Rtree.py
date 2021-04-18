@@ -74,6 +74,7 @@ class Rtree:
         performs a Nearest Neighbor query to the tree
         """
         import heapq as hp
+
         nn_obj = Rectangle(float('inf'), float('inf'), float('inf'), float('inf'))
         nn_obj_id = None
         h = []
@@ -82,14 +83,14 @@ class Rtree:
 
         while len(h) != 0 and self.node_array[h[0][1]].get_mbr().distance(q) < nn_obj.distance(q):
             e = hp.heappop(h)
-            if self.node_array[e[1]].isnonleaf:
+            n = self.node_array[e[1]]
+            if n.isnonleaf:
                 n = self.node_array[e[1]]
                 for entry in n.entries:
                     if entry.mbr.distance(q) < nn_obj.distance(q):
                         hp.heappush(h, (entry.mbr.distance(q), entry.entry_id))
 
             else:  # node is a leaf node
-                n = self.node_array[e[1]]
                 for entry in n.entries:
                     if entry.mbr.distance(q) < nn_obj.distance(q):
                         nn_obj = entry.mbr

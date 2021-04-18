@@ -15,4 +15,4 @@ rtree.constructFromDumpfile(dumpfile)
 # open NNQueries file and perform each query to the tree
 for lineno, line in enumerate(open(kNNQueries_file)):
     (x, y) = list(map(float, line.rstrip("\n").split(" ")))
-    print(lineno, rtree.kNNQuery(root=rtree.root, q=(x, y), k=int(k)))
+    print(f'{lineno}:', rtree.kNNQuery(root=rtree.root, q=(x, y), k=int(k)))
