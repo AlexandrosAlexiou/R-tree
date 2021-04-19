@@ -60,23 +60,20 @@ class Rectangle:
         return False
 
     def distance(self, point: (float, float)) -> float:
+        """
+        calculates the distance between an MBR and a point
+        """
         x, y = point
-        dx, dy = 0, 0
-
-        if x < self.x_low:
-            dx = self.x_low - x
-        elif x > self.x_high:
-            dx = x - self.x_high
-
-        if y < self.y_low:
-            dy = self.y_low - y
-        elif y > self.y_high:
-            dy = y - self.y_high
+        dx = self.x_low - x if x < self.x_low else 0 or x - self.x_high if x > self.x_high else 0
+        dy = self.y_low - y if y < self.y_low else 0 or y - self.y_high if y > self.y_high else 0
 
         return math.sqrt(dx**2 + dy**2)
 
 
 def calculate_MBR(coords) -> Rectangle:
+    """
+    calculates the MBR of an object given the coordinates of its edges
+    """
     x_low = min(coord[0] for coord in coords)
     x_high = max(coord[0] for coord in coords)
     y_low = min(coord[1] for coord in coords)
