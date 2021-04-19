@@ -5,6 +5,7 @@ from utils import distribute
 from Rectangle import Rectangle
 import heapq as hp
 
+
 class Rtree:
     """
     This class holds the Rtree data.
@@ -69,6 +70,35 @@ class Rtree:
                 if entry.mbr.intersects(window):
                     yield entry.entry_id
 
+    def kNNQuery(self, root: RTreeNode, q: (float, float), k: int) -> Iterable[int]:
+        """
+        performs a k Nearest Neighbor query to the tree
+        """
+
+        pq = []
+        for entry in root.entries:
+            hp.heappush(pq, (entry.mbr.distance(q), entry.entry_id, False))
+
+        while k:
+            yield self.get_next_BestFirst_NN(q=q, pq=pq)
+            k -= 1
+
+    def get_next_BestFirst_NN(self, q: (float, float), pq: List, is_object=lambda el: el[2], id=lambda el: el[1]) -> int:
+        """
+         returns next nearest neighbor to the point q
+        """
+        while len(pq):
+            e = hp.heappop(pq)
+            if is_object(e):
+                return id(e)
+            n = self.node_array[e[1]]
+            if n.isnonleaf:
+                for entry in n.entries:
+                    hp.heappush(pq, (entry.mbr.distance(q), entry.entry_id, False))
+            else:
+                for entry in n.entries:
+                    hp.heappush(pq, (entry.mbr.distance(q), entry.entry_id, True))
+
     def dump(self, filename: str) -> None:
         """
         dumps the tree on disk
@@ -90,36 +120,3 @@ class Rtree:
                     node_entries.append(RTreeEntry(entry_id=entry_id, mbr=Rectangle(*mbr)))
                 self.node_array.append(RTreeNode(id=node_id, isnonleaf=isnonleaf, entries=node_entries))
             self.root = self.node_array[-1]
-
-    def kNNQuery(self, root: RTreeNode, q: (float, float), k: int):
-        """
-        performs a Nearest Neighbor query to the tree
-        """
-
-        h = []
-        for entry in root.entries:
-            hp.heappush(h, (entry.mbr.distance(q), entry.entry_id, False))
-
-        while k:
-            yield self.get_next_BestFirst_NN(q=q, priority_queue=h)
-            k -= 1
-
-    def get_next_BestFirst_NN(self, q: (float, float), priority_queue: List):
-
-        while len(priority_queue):
-            e = hp.heappop(priority_queue)
-
-            if e[2]:
-                return e[1]
-
-            n = self.node_array[e[1]]
-            if n.isnonleaf:
-                for entry in n.entries:
-                    hp.heappush(priority_queue, (entry.mbr.distance(q), entry.entry_id, False))
-            else:
-                for entry in n.entries:
-                    hp.heappush(priority_queue, (entry.mbr.distance(q), entry.entry_id, True))
-
-
-
-
