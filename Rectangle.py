@@ -1,4 +1,5 @@
 import math
+from typing import List
 
 
 class Rectangle:
@@ -70,7 +71,7 @@ class Rectangle:
         return math.sqrt(dx**2 + dy**2)
 
 
-def calculate_MBR(coords) -> Rectangle:
+def calculate_MBR(coords: List[List]) -> Rectangle:
     """
     calculates the MBR of an object given the coordinates of its edges
     """
