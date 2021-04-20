@@ -6,7 +6,7 @@ import unittest
 from Rectangle import Rectangle
 
 
-class TestRect(unittest.TestCase):
+class TestRectangle(unittest.TestCase):
     """Rectangle class tests"""
 
     def test_init(self):
