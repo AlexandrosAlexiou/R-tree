@@ -79,7 +79,7 @@ def calculate_MBR(coords: List[List]) -> Rectangle:
     x_high = max(coord[0] for coord in coords)
     y_low = min(coord[1] for coord in coords)
     y_high = max(coord[1] for coord in coords)
-    return Rectangle(x_low, x_high, y_low, y_high)
+    return Rectangle(x_low=x_low, x_high=x_high, y_low=y_low, y_high=y_high)
 
 
 def calculate_Geohash(mbr: Rectangle) -> int:

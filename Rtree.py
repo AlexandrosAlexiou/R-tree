@@ -57,7 +57,7 @@ class Rtree:
             self.node_array.append(root_node)
             print(f'1 nodes at level {curr_tree_level}')
 
-    def rangeQuery(self, window: Rectangle, node: RTreeNode) -> Iterable[int]:
+    def rangeQuery(self, node: RTreeNode, window: Rectangle) -> Iterable[int]:
         """
         performs a range query to the tree and yields each object id that satisfies the query range
         """

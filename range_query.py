@@ -20,4 +20,3 @@ for lineno, line in enumerate(open(queries_file)):
     results = list(rtree.rangeQuery(node=rtree.root, window=window_query))
     # print query results
     print(f"{lineno} ({len(results)}): {str(results)[1:-1]}")
-
